@@ -1,7 +1,8 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt                                 # Ridge Regression/ L2 Norm Regularization for batch gradient
-from mpl_toolkits.mplot3d import Axes3D                         #descent, mini-batch and stochastic grad descent.
+import math                                             # Least Angle Regression/ L1 Norm Regularization for batch gradient
+import matplotlib.pyplot as plt                         #descent, mini-batch and stochastic grad descent.
+from mpl_toolkits.mplot3d import Axes3D
 import random
 
 inp_df = pd.read_excel(r"D:\3-1\course\Neural Networks\assignment1\training_feature_matrix.xlsx", header=None).to_numpy()
@@ -10,7 +11,7 @@ y= pd.read_excel(r"D:\3-1\course\Neural Networks\assignment1\training_output.xls
 def cost(X,y,theta,lamb=100):
     m=len(y)
     predict= np.dot(X,theta)
-    cost1 =  np.sum(np.square(predict-y))+ lamb*np.sum(np.square(theta))
+    cost1 =  np.sum(np.square(predict-y))+ lamb*np.sum(abs(theta))
     return cost1/2
 
 def mse(X,y,theta):
@@ -25,7 +26,7 @@ def grad_descent(X , y, n_iter, alpha,theta,lamb=10):
     theta_hist= np.zeros((n_iter,3))
     for iter1 in range(n_iter) :
         predict= np.dot(X,theta)
-        theta =(1-alpha*lamb)* theta -  alpha*(X.T.dot((predict-y)))
+        theta =(theta-alpha*lamb*np.sign(theta)) -  alpha*(X.T.dot((predict-y)))
         theta_hist[iter1 , :]= theta.T
         cost_history[iter1]= cost(X,y,theta)
     return theta, cost_history, theta_hist
@@ -40,7 +41,7 @@ def stochastic_grad_descent(X , y, n_iter, alpha,theta,lamb=10):
             X_i= X[rand_int,:].reshape(1,X.shape[1])
             y_i= y[rand_int].reshape(1,1)
             predict= np.dot(X_i,theta)
-            theta=(1-alpha*lamb)*theta- alpha*(X_i.T.dot((predict-y_i)))
+            theta=(theta-alpha*lamb*np.sign(theta))- alpha*(X_i.T.dot((predict-y_i)))
             cost_sum+= cost(X_i,y_i,theta)
         cost_history[it]=cost_sum
     return theta,cost_history
@@ -58,7 +59,7 @@ def mini_batch_grad_descent(X,y,theta_mini,alpha,n_iter,batch_size=32,lamb=10):
             X_i= X[i:i+batch_size]
             y_i= y[i:i+batch_size]
             prediction=np.dot(X_i,theta_mini)
-            theta_mini= (1-alpha*lamb)*theta_mini - alpha* (X_i.T.dot((prediction-y_i)))
+            theta_mini= (theta_mini-alpha*lamb*np.sign(theta_mini)) - alpha* (X_i.T.dot((prediction-y_i)))
             cost1 += cost(X_i,y_i,theta_mini)
         cost_history[it]=cost1
     return theta_mini,cost_history
@@ -111,8 +112,8 @@ Xt[:,1] = (Xt[:,1]-Xm1)/Xstd1  #normalize all X and y
 Xt[:,2] = (Xt[:,2]-Xm2)/Xstd2
 y1=(y1-ym)/ystd
 
-print(mse(Xt,y1,theta))
-print(mse(Xt,y1,theta_stoc))
-print(mse(Xt,y1,theta_mini))
+print(cost(Xt,y1,theta)/m)
+print(cost(Xt,y1,theta_stoc)/m)
+print(cost(Xt,y1,theta_mini)/m)
 
 

@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt                  #Stochastic and mini-batch gradient descent.
 from mpl_toolkits.mplot3d import Axes3D
 import random
 
